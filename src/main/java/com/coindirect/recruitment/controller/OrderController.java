@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController("orders")
 public class OrderController {
 
+    @Autowired
+    BookingRepository bookingRepo;
+
     /**
      * Creates a booking with the requested details.
      * If unavailable returns a 200 with error message.
@@ -21,7 +24,28 @@ public class OrderController {
      */
     @PostMapping("create")
     ResponseEntity<BookingDto> createBooking(@RequestBody RequestBookingDto requestBooking){
-        return null;
+ 
+        int added = 0;
+
+        JSONParser parser = new JSONParser();
+        Object object = parser.parse(payload);
+        JSONObject jsonObject = (JSONObject) object;
+
+        int row = jsonObject.get("row");
+        int column = jsonObject.get("column");
+        if(bookingRepo.getBookingAvailable(row,column) !== NULL){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        String body = (String) jsonObject.get("body");
+
+        added = bookingRepo.createBooking(body);
+            
+        requestBooking = requestBooking.lastNote();
+        
+        return new RequestBookingDto(requestBooking.getId(), requestBooking.getBody());
+
+        //return null;
     }
 
     /**
@@ -32,6 +56,7 @@ public class OrderController {
      */
     @GetMapping("getByPosition/{row}/{column}")
     ResponseEntity<BookingDto> getBookingByPosition(@PathVariable String row,@PathVariable String column){
+        added = bookingRepo.createBooking(body);
        return null;
     }
 
@@ -53,7 +78,7 @@ public class OrderController {
      */
     @GetMapping("isAvailable/{row}/{column}")
     ResponseEntity<Boolean> isAvailable(@PathVariable String row,@PathVariable String column){
-        return null;
+        bookingRepo.getBookingAvailable(row,column) == NULL ? return true : return false;
     }
 
 }
