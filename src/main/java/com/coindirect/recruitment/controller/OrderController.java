@@ -1,21 +1,11 @@
 package com.coindirect.recruitment.controller;
-
 import com.coindirect.recruitment.dto.BookingDto;
-import com.coindirect.recruitment.dto.DeleteDto;
 import com.coindirect.recruitment.dto.RequestBookingDto;
 import com.coindirect.recruitment.repository.BookingRepository;
-
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.apache.catalina.connector.Response;
-// import com.coindirect.repository.BookingRepository;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import java.util.List;
+
 
 /**
  * Controller for handling bookings for a bing hall.
