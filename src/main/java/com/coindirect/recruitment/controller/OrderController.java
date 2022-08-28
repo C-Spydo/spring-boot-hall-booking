@@ -4,13 +4,14 @@ import com.coindirect.recruitment.dto.BookingDto;
 import com.coindirect.recruitment.dto.DeleteDto;
 import com.coindirect.recruitment.dto.RequestBookingDto;
 import com.coindirect.recruitment.repository.BookingRepository;
-import com.coindirect.recruitment.service.BookingService;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.apache.catalina.connector.Response;
 // import com.coindirect.repository.BookingRepository;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -36,40 +37,18 @@ public class OrderController {
     
     @PostMapping("create")
     @ResponseBody
-    ResponseEntity<BookingDto> createBooking(@RequestBody RequestBookingDto requestBooking){
-        BookingDto booking;
+    ResponseEntity createBooking(@RequestBody RequestBookingDto requestBooking){
+
+        Boolean isAvailable = bookingRepo.getBookingAvailable(requestBooking.getRow(), requestBooking.getColumn());
+        if(isAvailable){
+            return ResponseEntity.ok("Error: Booking is not Available");
+        }
         int added = bookingRepo.createBooking(requestBooking.getRow(), requestBooking.getColumn(), requestBooking.getName());
         if(added != 0){
-            booking = bookingRepo.lastBooking();
-            HttpHeaders httpHeaders = new HttpHeaders();
-            return new ResponseEntity<>(booking, httpHeaders, HttpStatus.CREATED);
+            BookingDto booking  = bookingRepo.lastBooking();
+            return ResponseEntity.ok(booking);
         }
-
         return null;
-
-        // return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        // int added = 0;
-
-        // payload = null;
-        // JSONParser parser = new JSONParser();
-        // Object object = parser.parse(payload);
-        // JSONObject jsonObject = (JSONObject) object;
-
-        // int row = jsonObject.get("row");
-        // int column = jsonObject.get("column");
-        // if(bookingRepo.getBookingAvailable(row,column) !== NULL){
-        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        // }
-
-        // String body = (String) jsonObject.get("body");
-
-        // added = bookingRepo.createBooking(body);
-            
-        // requestBooking = requestBooking.lastNote();
-        
-        // return new RequestBookingDto(requestBooking.getId(), requestBooking.getBody());
-
-        // return null;
     }
 
     /**
@@ -79,9 +58,14 @@ public class OrderController {
      * @return the booking details. 400 if not found
      */
     @GetMapping("getByPosition/{row}/{column}")
-    ResponseEntity<BookingDto> getBookingByPosition(@PathVariable String row,@PathVariable String column){
-        // added = bookingRepo.createBooking(body);
-       return null;
+    @ResponseBody
+    ResponseEntity getBookingByPosition(@PathVariable int row,@PathVariable int column){
+        BookingDto booking = bookingRepo.getBookingByPosition(row, column);
+        if(booking == null){      
+            return ResponseEntity.badRequest().body("");
+        }
+        return ResponseEntity.ok(booking);
+   
     }
 
     /**
@@ -90,8 +74,12 @@ public class OrderController {
      * @return the booking details. 400 if not found
      */
     @GetMapping("getByBookingId/{bookingId}")
-    ResponseEntity<BookingDto> getBookingById(@PathVariable String bookingId){
-        return null;
+    ResponseEntity getBookingById(@PathVariable long bookingId){
+        BookingDto booking = bookingRepo.getBookingById(bookingId);
+        if(booking == null){      
+            return ResponseEntity.badRequest().body("");
+        }
+        return ResponseEntity.ok(booking);
     }
 
     /**
@@ -101,9 +89,8 @@ public class OrderController {
      * @return true if cell is available. false if not
      */
     @GetMapping("isAvailable/{row}/{column}")
-    ResponseEntity<Boolean> isAvailable(@PathVariable String row,@PathVariable String column){
-        return null;
-        // bookingRepo.getBookingAvailable(row,column) == null ? return true : return false;
+    ResponseEntity<Boolean> isAvailable(@PathVariable int row,@PathVariable int column){
+        return ResponseEntity.ok(bookingRepo.getBookingAvailable(row,column));
     }
 
 }
