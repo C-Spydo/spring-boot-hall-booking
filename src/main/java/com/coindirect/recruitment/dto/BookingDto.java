@@ -1,12 +1,18 @@
 package com.coindirect.recruitment.dto;
 
-import lombok.Data;
-
-@Data
 public class BookingDto {
 
-    String bookingId;
-    String row;
-    String column;
-    String name;
+    private long bookingId;
+    private int row;
+    private int column;
+    private String name;
+
+    public BookingDto(long bookingId, int row, int column, String name) {
+        this.bookingId = bookingId;
+        this.row = row;
+        this.column = column;
+        this.name = name;
+    }
+
+
 }

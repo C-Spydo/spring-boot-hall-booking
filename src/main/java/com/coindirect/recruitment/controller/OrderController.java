@@ -3,8 +3,18 @@ package com.coindirect.recruitment.controller;
 import com.coindirect.recruitment.dto.BookingDto;
 import com.coindirect.recruitment.dto.DeleteDto;
 import com.coindirect.recruitment.dto.RequestBookingDto;
+import com.coindirect.recruitment.repository.BookingRepository;
+import com.coindirect.recruitment.service.BookingService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+// import com.coindirect.repository.BookingRepository;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import java.util.List;
 
 /**
  * Controller for handling bookings for a bing hall.
@@ -13,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController("orders")
 public class OrderController {
 
+    // BookingService bookingService;
     @Autowired
     BookingRepository bookingRepo;
 
@@ -22,30 +33,43 @@ public class OrderController {
      * @param requestBooking the requested booking details.
      * @return on success booking details. on failure error message.
      */
+    
     @PostMapping("create")
+    @ResponseBody
     ResponseEntity<BookingDto> createBooking(@RequestBody RequestBookingDto requestBooking){
- 
-        int added = 0;
-
-        JSONParser parser = new JSONParser();
-        Object object = parser.parse(payload);
-        JSONObject jsonObject = (JSONObject) object;
-
-        int row = jsonObject.get("row");
-        int column = jsonObject.get("column");
-        if(bookingRepo.getBookingAvailable(row,column) !== NULL){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        BookingDto booking;
+        int added = bookingRepo.createBooking(requestBooking.getRow(), requestBooking.getColumn(), requestBooking.getName());
+        if(added != 0){
+            booking = bookingRepo.lastBooking();
+            HttpHeaders httpHeaders = new HttpHeaders();
+            return new ResponseEntity<>(booking, httpHeaders, HttpStatus.CREATED);
         }
 
-        String body = (String) jsonObject.get("body");
+        return null;
 
-        added = bookingRepo.createBooking(body);
+        // return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        // int added = 0;
+
+        // payload = null;
+        // JSONParser parser = new JSONParser();
+        // Object object = parser.parse(payload);
+        // JSONObject jsonObject = (JSONObject) object;
+
+        // int row = jsonObject.get("row");
+        // int column = jsonObject.get("column");
+        // if(bookingRepo.getBookingAvailable(row,column) !== NULL){
+        //     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        // }
+
+        // String body = (String) jsonObject.get("body");
+
+        // added = bookingRepo.createBooking(body);
             
-        requestBooking = requestBooking.lastNote();
+        // requestBooking = requestBooking.lastNote();
         
-        return new RequestBookingDto(requestBooking.getId(), requestBooking.getBody());
+        // return new RequestBookingDto(requestBooking.getId(), requestBooking.getBody());
 
-        //return null;
+        // return null;
     }
 
     /**
@@ -56,7 +80,7 @@ public class OrderController {
      */
     @GetMapping("getByPosition/{row}/{column}")
     ResponseEntity<BookingDto> getBookingByPosition(@PathVariable String row,@PathVariable String column){
-        added = bookingRepo.createBooking(body);
+        // added = bookingRepo.createBooking(body);
        return null;
     }
 
@@ -78,7 +102,8 @@ public class OrderController {
      */
     @GetMapping("isAvailable/{row}/{column}")
     ResponseEntity<Boolean> isAvailable(@PathVariable String row,@PathVariable String column){
-        bookingRepo.getBookingAvailable(row,column) == NULL ? return true : return false;
+        return null;
+        // bookingRepo.getBookingAvailable(row,column) == null ? return true : return false;
     }
 
 }
