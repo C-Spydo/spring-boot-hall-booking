@@ -4,10 +4,12 @@ import com.coindirect.recruitment.dto.BookingDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import javax.persistence.LockModeType;
 
 @Repository
 public class BookingRepository {
@@ -16,6 +18,7 @@ public class BookingRepository {
     JdbcTemplate template;
 
     /* Adding into database table */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public int createBooking(int row, int column, String name) {
         String query = "INSERT INTO BOOKINGS (brow, bcolumn, name) VALUES(?,?,?)";
         return template.update(query, row, column, name);
@@ -23,6 +26,7 @@ public class BookingRepository {
 
         /* Get Booking by row and column */
 
+    @Lock(LockModeType.PESSIMISTIC_READ)
     public BookingDto getBookingById(long bookingId) {
         try{
             BookingDto items = template.queryForObject("SELECT * FROM BOOKINGS WHERE id=?", (result,
@@ -42,7 +46,7 @@ public class BookingRepository {
     public BookingDto getBookingByPosition(int row, int column) {
         try{
             BookingDto items = template.queryForObject("SELECT * FROM BOOKINGS WHERE brow=? AND bcolumn=?", (result,
-                    rowNum) -> new BookingDto(result.getLong("bookingId"), result.getInt("row"), result.getInt("column"), result.getString("name")),
+                    rowNum) -> new BookingDto(result.getLong("id"), result.getInt("row"), result.getInt("column"), result.getString("name")),
                     row,column);
             return items;
         }
@@ -54,16 +58,16 @@ public class BookingRepository {
         }
     }
 
-    // /* Check if Booking is Available Booking*/
+    /* Check if Booking is Available Booking*/
     public Boolean getBookingAvailable(int row, int column) {
         try{
             BookingDto items = template.queryForObject("SELECT * FROM BOOKINGS WHERE brow=? AND bcolumn=?", (result,
                     rowNum) -> new BookingDto(result.getLong("id"), result.getInt("brow"), result.getInt("bcolumn"), result.getString("name")),
                     row,column);
-            return items == null ?  false : true;
+            return items == null ?  true : false;
         }
         catch(EmptyResultDataAccessException e) {
-            return false;
+            return true;
         }
         catch(IncorrectResultSizeDataAccessException e) {
             return false;
@@ -81,6 +85,7 @@ public class BookingRepository {
         /**
      *  get the last booking
      */
+    @Lock(LockModeType.PESSIMISTIC_READ)
     public BookingDto lastBooking() {
         BookingDto items = template.queryForObject("SELECT * from bookings WHERE id=(SELECT max(id) FROM bookings)", (result,
                 rowNum) -> new BookingDto(result.getLong("id"), result.getInt("brow"), result.getInt("bcolumn"), result.getString("name")));
@@ -88,6 +93,7 @@ public class BookingRepository {
     }
 
     /* Delete an item */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public int deleteBookingById(int id) {
         String query = "DELETE FROM BOOKINGS WHERE ID =?";
         return template.update(query, id);

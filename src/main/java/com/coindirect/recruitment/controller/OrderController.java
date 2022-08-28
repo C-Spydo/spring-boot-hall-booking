@@ -4,6 +4,7 @@ import com.coindirect.recruitment.dto.RequestBookingDto;
 import com.coindirect.recruitment.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -27,6 +28,7 @@ public class OrderController {
     
     @PostMapping("create")
     @ResponseBody
+    @Transactional
     ResponseEntity createBooking(@RequestBody RequestBookingDto requestBooking){
 
         Boolean isAvailable = bookingRepo.getBookingAvailable(requestBooking.getRow(), requestBooking.getColumn());
